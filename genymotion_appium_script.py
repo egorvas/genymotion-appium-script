@@ -122,7 +122,7 @@ def get_ips_of_instances(resource, title):
 
 def run_container(name, postfix, ip,selenium_host, selenium_port,
                   version, share_path, docker_client, port, network):
-
+    print ("Creating container with name "+name+postfix+'_'+str(port))
     container = docker_client.containers.run(DOCKER_IMAGE_NAME,privileged=True, volumes={share_path:share_path},
                                       ports={4723: port},network=network,name = name+postfix+'_'+str(port),
                                       detach=True,environment={"CONNECT_TO_GRID":"True",
@@ -132,8 +132,10 @@ def run_container(name, postfix, ip,selenium_host, selenium_port,
                                                    'SELENIUM_PORT':selenium_port,"OS_VERSION":version,
                                                    "DEVICE_NAME": ip+":5555"})
     connect_result=b''
+    print("Connecting continer " +name+postfix+'_'+str(port) +" with genymotion server "+ip+":5555")
     while 'connected' not in connect_result.decode('utf-8'):
         connect_result = container.exec_run(cmd="adb connect "+ip+":5555")
+    print("Continer " + name + postfix + '_' + str(port) + " connected to genymotion server " + ip + ":5555")
     container.exec_run(cmd="adb shell setprop genyd.gps.status enabled")
 
 def delete_containers(name, postfix):
@@ -187,4 +189,3 @@ def parse_options():
 
 if __name__ == "__main__":
     parse_options()
-
